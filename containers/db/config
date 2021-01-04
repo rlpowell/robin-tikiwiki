@@ -1,0 +1,5 @@
+description="database for robin's personal tikiwki"
+needs_network=true
+name=db
+version=1
+run_args='-v $containerdir/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=$mysql_root_password -e MYSQL_DATABASE=tiki_robin -e MYSQL_USER=tiki_robin -e MYSQL_PASSWORD=$mysql_password'

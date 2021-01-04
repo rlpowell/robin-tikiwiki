@@ -1,0 +1,28 @@
+<%= "\n"*30 %>
+<%= "# YOU ARE IN THE WRONG PLACE" %>
+<%= "# YOU ARE IN THE WRONG PLACE use the ERB file" %>
+<%= "# YOU ARE IN THE WRONG PLACE" %>
+
+# https://hub.docker.com/_/mariadb
+FROM mariadb:10.5
+
+RUN usermod -u <%= userid %> mysql
+RUN find / -xdev -user 999 -print0 | xargs -0 chown mysql
+RUN find / -xdev -user 999 -ls
+RUN groupmod -g <%= groupid %> mysql
+RUN find / -xdev -group 999 -print0 | xargs -0 chgrp mysql
+RUN find / -xdev -group 999 -ls
+
+# It's very important that the /home/mysql/.my.cnf file *not* be
+# there on the first run, the one that creates the basic DB setup
+# directories, or that initialization will fail.
+<%- if File.exist?(File.join(containerdir,"data","mysql")) -%>
+# Backups
+RUN mkdir -p /home/mysql/
+RUN chown mysql:mysql /home/mysql/
+COPY misc/my.cnf /home/mysql/.my.cnf
+COPY misc/mysql_backup.sh /usr/local/bin/mysql_backup.sh
+RUN chmod 755 /usr/local/bin/mysql_backup.sh
+<%- end -%>
+
+USER mysql
