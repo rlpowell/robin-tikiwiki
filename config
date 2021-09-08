@@ -1,2 +1,2 @@
-service=robin-tikiwiki
+bundle=robin-tikiwiki
 pod_args='-p 19680:80'
