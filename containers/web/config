@@ -3,4 +3,5 @@ needs_network=true
 name=web
 after_containers=db
 version=1
-run_args='-u root --image-volume ignore -e TIKI_DB_VERSION=21 -e TIKI_DB_HOST='127.0.0.1' -e TIKI_DB_USER=tiki_robin -e TIKI_DB_PASS=$mysql_password -e TIKI_DB_NAME=tiki_robin'
+# -t is required for the logs pointing to /dev/stdout to work with SELinux
+run_args='-t -u root --image-volume ignore -e TIKI_DB_VERSION=21 -e TIKI_DB_HOST='127.0.0.1' -e TIKI_DB_USER=tiki_robin -e TIKI_DB_PASS=$mysql_password -e TIKI_DB_NAME=tiki_robin'
