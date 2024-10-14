@@ -1,7 +1,18 @@
 #!/bin/bash
 
+# Error trapping from https://gist.github.com/oldratlee/902ad9a398affca37bfcfab64612e7d1
+__error_trapper() {
+  local parent_lineno="$1"
+  local code="$2"
+  local commands="$3"
+  echo "error exit status $code, at file $0 on or near line $parent_lineno: $commands"
+}
+trap '__error_trapper "${LINENO}/${BASH_LINENO}" "$?" "$BASH_COMMAND"' ERR
+
+set -euE -o pipefail
+shopt -s failglob
+
 exec 2>&1
-set -e
 set -x
 
 #********************
@@ -22,14 +33,14 @@ mysql tiki_robin -e 'delete from tiki_actionlog where lastmodif < UNIX_TIMESTAMP
 if [ "$(date +%-d)" -eq 1 ]
 then
   # Repairs brokenness
-  /usr/bin/mysqlcheck --all-databases --auto-repair | egrep -v '(Table is already up to date| OK)$'
+  /usr/bin/mysqlcheck --all-databases --auto-repair
 
   # defragments after large deletes or whatever
-  /usr/bin/mysqlcheck --all-databases --optimize | egrep -v '(Table is already up to date| OK|mysql.general_log|mysql.slow_log|note *: The storage engine for the table doesn.t support optimize)$'
+  /usr/bin/mysqlcheck --all-databases --optimize
 fi
 
 # updates keys/indexes for speed
-/usr/bin/mysqlcheck --all-databases --analyze | egrep -v '(Table is already up to date| OK|mysql.general_log|mysql.slow_log|note *: The storage engine for the table doesn.t support analyze)$' || true
+/usr/bin/mysqlcheck --all-databases --analyze
 
 #********************
 # MySQL backup
